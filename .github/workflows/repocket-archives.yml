@@ -16,6 +16,7 @@ jobs:
         image: [cashpilot, cashpilot-worker]
         arch: [amd64, arm64]
     steps:
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1
       - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f
         with:
           registry: ghcr.io
@@ -36,6 +37,11 @@ jobs:
           done
           test "$pulled" = 1
           docker image inspect "$IMAGE" --format '{{.Architecture}}' | grep -x "$ARCH"
+          if [ '${{ matrix.image }}' = cashpilot ]; then
+            docker run --rm --platform "linux/$ARCH" --entrypoint python "$IMAGE" -c 'from app import catalog; catalog.load_services(); s=catalog.get_service("repocket"); v=next(v for v in s["docker"]["env"] if v["key"]=="RP_API_KEY"); assert v["pattern"]; assert "not your password" in v["label"]'
+          else
+            docker run --rm --platform "linux/$ARCH" --entrypoint python "$IMAGE" -c 'import app.worker_api'
+          fi
           docker save "$IMAGE" | gzip > "$ASSET"
           sha256sum "$ASSET" > "$ASSET.sha256"
           gh release upload repocket-api-key "$ASSET" "$ASSET.sha256" --repo VlastikYoutubeKo/CashPilot --clobber
