@@ -2,6 +2,7 @@ name: Repocket temporary images
 on:
   push:
     branches: [images/repocket-api-key]
+    paths: ['app/**', 'services/**', 'tests/**', 'scripts/**', 'Dockerfile*', 'pyproject.toml', 'uv.lock']
 permissions:
   contents: read
   packages: write
@@ -29,6 +30,7 @@ jobs:
     if: github.repository == 'VlastikYoutubeKo/CashPilot'
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         include:
           - image: cashpilot
@@ -65,5 +67,5 @@ jobs:
           if [ '${{ matrix.image }}' = cashpilot ]; then
             docker run --rm --entrypoint python "$IMAGE" -c 'from app import catalog; catalog.load_services(); s=catalog.get_service("repocket"); v=next(v for v in s["docker"]["env"] if v["key"]=="RP_API_KEY"); assert v["pattern"]; assert "not your password" in v["label"]'
           else
-            docker run --rm --entrypoint python "$IMAGE" -c 'import app.worker'
+            docker run --rm --entrypoint python "$IMAGE" -c 'import app.worker_api'
           fi
