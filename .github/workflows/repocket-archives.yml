@@ -24,7 +24,7 @@ jobs:
       - name: Export the tested image and publish a public download
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE: ghcr.io/vlastikyoutubeko/${{ matrix.image }}:sha-5aabfa49ddfe97753e26cf4832bb05e9ebe909e6
+          IMAGE: ghcr.io/vlastikyoutubeko/${{ matrix.image }}:sha-07b28e78484126fdc3f0af8fca5c95a7c8ecc7ec
           ARCH: ${{ matrix.arch }}
           ASSET: ${{ matrix.image }}-repocket-api-key-${{ matrix.arch }}.tar.gz
         run: |
